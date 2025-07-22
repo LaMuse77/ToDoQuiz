@@ -38,11 +38,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'auth',
-    'metier',
-    'profilUser',
+    #'auth', # delete causes he's already uses 
+    'accounts',
+    'quizzes',
+    'results',
+    'scrapper',
+    'rest_framework',
+    'corsheaders',
 
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -79,10 +84,15 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'quiz',
+        'USER': 'quiz_user',
+        'PASSWORD': 'Database123',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
+
 
 
 # Password validation
@@ -125,3 +135,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# To change default  Accounts in django 
+AUTH_USER_MODEL = 'accounts.User'
