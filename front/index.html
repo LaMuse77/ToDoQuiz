@@ -1,43 +1,142 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>landing pages</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quiz App</title>
+  <style>
+    body {
+      background-color: #71c071;
+      font-family: sans-serif;
+      color: white;
+      text-align: center;
+    }
 
+    main {
+      display: flex;
+      justify-content: center;
+      margin-top: 50px;
+    }
 
-    <style>
+    .form-box {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-        body {
-            background-color: green;
-        }
-
-        main {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-        } 
-        main .section,
-        header > h3 {
-            text-align: center;
-        }
-
-        
-    </style>
-
+    input, select, button {
+      padding: 8px;
+      margin: 5px;
+      width: 200px;
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <h3>Quiz App</h3>
+  </header>
 
-    <header>
-        <h3>Quiz</h3>
-    </header>
+  <main>
+    <section>
+      <button onclick="showLogin()">Begin</button>
 
-    <main>
-        <section>
-            <button>Begin</button>
-            <button>Annuler</button>
-        </section>
-    </main>
-    
+      <!-- LOGIN FORM -->
+      <div id="loginForm" class="form-box">
+        <h4>Connexion</h4>
+        <input type="text" id="loginUsername" placeholder="Nom d'utilisateur">
+        <input type="password" id="loginPassword" placeholder="Mot de passe">
+        <button onclick="login()">Se connecter</button>
+        <p><a href="#" onclick="toggleToRegister()">Pas encore de compte ? S’inscrire</a></p>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div id="registerForm" class="form-box">
+        <h4>Créer un compte</h4>
+        <input type="text" id="regUsername" placeholder="Nom d'utilisateur">
+        <input type="email" id="regEmail" placeholder="Email">
+        <input type="password" id="regPassword" placeholder="Mot de passe">
+        <select id="regRole">
+          <option value="participant">Participant</option>
+          <option value="organisateur">Organisateur</option>
+        </select>
+        <button onclick="register()">S’inscrire</button>
+        <p><a href="#" onclick="toggleToLogin()">Déjà un compte ? Se connecter</a></p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const baseUrl = 'http://127.0.0.1:8000';
+
+    function showLogin() {
+      document.getElementById('loginForm').style.display = 'flex';
+      document.getElementById('registerForm').style.display = 'none';
+    }
+
+    function toggleToRegister() {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'flex';
+    }
+
+    function toggleToLogin() {
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('loginForm').style.display = 'flex';
+    }
+
+
+    async function login() {
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+
+        const res = await fetch(`${baseUrl}/api/accounts/login/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            alert('Connecté !');
+
+            if (data.role === 'participant') {
+            window.location.href = "pages/chooseCategorie.html";  // Crée ce fichier si pas encore
+            } else if (data.role === 'organisateur') {
+            window.location.href = "pages/dashboard.html";  // Crée ce fichier si pas encore
+            } else {
+            alert("Rôle inconnu.");
+            }
+
+        } else {
+            alert('Erreur : ' + (data.error || JSON.stringify(data)));
+        }
+    }
+
+
+    async function register() {
+      const username = document.getElementById('regUsername').value;
+      const email = document.getElementById('regEmail').value;
+      const password = document.getElementById('regPassword').value;
+      const role = document.getElementById('regRole').value;
+
+      const res = await fetch(`${baseUrl}/api/accounts/register/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password, role })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert('Inscription réussie ! Token : ' + data.token);
+        toggleToLogin(); // on retourne au login
+      } else {
+        alert('Erreur : ' + JSON.stringify(data));
+      }
+    }
+  </script>
 </body>
 </html>

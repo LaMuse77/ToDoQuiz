@@ -14,3 +14,13 @@ GRANT ALL PRIVILEGES ON DATABASE quiz TO quiz_user;
 
 -- Quitter
 \q
+
+
+---modifiation pour voir les droits de ...
+
+GRANT USAGE, CREATE ON SCHEMA public TO quiz_user;
+
+-- Et optionnellement, pour donner tous les droits actuels et futurs :
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO quiz_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO quiz_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO quiz_user;

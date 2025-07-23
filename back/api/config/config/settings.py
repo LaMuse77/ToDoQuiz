@@ -26,6 +26,15 @@ SECRET_KEY = 'django-insecure-8&4i^!s(xmlws8nr#h6wodua4!sj!%o%fee@4s%d0w$$c(s-8f
 DEBUG = True
 
 ALLOWED_HOSTS = []
+CORS_ALLOW_ALL_ORIGINS = True  # en développement uniquement !
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:5500",  # ton frontend local
+]
+
+
+
 
 
 # Application definition
@@ -45,11 +54,20 @@ INSTALLED_APPS = [
     'scrapper',
     'rest_framework',
     'corsheaders',
+    'rest_framework.authtoken',
 
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}
+
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # ← doit être en tout premier
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
