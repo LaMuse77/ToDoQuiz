@@ -11,6 +11,73 @@
   <p>Choisissez une catégorie de quiz :</p>
   <!-- Liste de catégories ici -->
 
-    
+
+    <section id="normalQuestion">
+      <form action="">
+
+        <div class="TheQuestion">
+          <label for=""> Ask The question </label>
+        </div>
+
+        <div class="TheAwnser">
+          <label for=""> The awnser  </label>
+
+          <p> add </p>
+          <!-- Aadd condition allow the add each response in texte or file -->
+
+        </div>
+
+
+        <div class="Cat">
+          <label for=""> choose the categorie  </label>
+        </div>
+
+       <button onclick="sendQuiz()">Envoyer le Quiz</button>
+
+
+      </form>
+    </section>
+
+    <script>
+async function sendQuiz() {
+  const titre = "Quiz Exemple";
+  const description = "Un quiz envoyé depuis le front";
+  const categorie = 1; // l'id d'une catégorie existante
+  const data = {
+    titre: titre,
+    description: description,
+    categorie: categorie,
+    questions: [
+      {
+        texte: "Quelle est la capitale de la Côte d'Ivoire ?",
+        type: "text",
+        choices: [
+          { texte: "Abidjan" },
+          { texte: "Yamoussoukro" }
+        ]
+      },
+      {
+        texte: "Choisis un drapeau",
+        type: "file",
+        choices: [
+          { texte: "", image: null }  // tu peux ajouter des inputs pour fichiers
+        ]
+      }
+    ]
+  };
+
+  const response = await fetch("http://localhost:8000/api/quizzes/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+
+  const result = await response.json();
+  console.log("Résultat:", result);
+}
+</script>
+
 </body>
 </html>
