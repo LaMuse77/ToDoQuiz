@@ -101,6 +101,9 @@
 
         if (res.ok) {
             alert('Connecté !');
+            if (data.token) {
+                localStorage.setItem('authToken', data.token);
+              }
 
             if (data.role === 'participant') {
             window.location.href = "pages/chooseCategorie.html";  // Crée ce fichier si pas encore

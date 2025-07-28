@@ -8,8 +8,8 @@ from .models import Quiz, Question, Choice, Categorie
 
 class CategorieCreateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Choice 
-        fields = ['nom']
+        model = Categorie                                                                                                           
+        fields = ['id','nom']
     
 
 class ChoiceCreateSerializer(serializers.ModelSerializer):

@@ -4,11 +4,12 @@ from django.shortcuts import render
 
 
 # quizzes/views.py
-from rest_framework import viewsets
-from .models import Question, Quiz
-from .serializers import QuestionCreateSerializer, QuizCreateSerializer
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework import viewsets , mixins
+from .models import Question, Quiz , Categorie
+from .serializers import QuestionCreateSerializer, QuizCreateSerializer , CategorieCreateSerializer
+from rest_framework.permissions import IsAuthenticatedOrReadOnly , AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
+
 
 class QuestionCreateViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
@@ -23,3 +24,9 @@ class QuizViewSet(viewsets.ModelViewSet):
 
     def get_serializer_context(self):
         return {'request': self.request}
+    
+
+class CategorieViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = Categorie.objects.all()
+    serializer_class = CategorieCreateSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
