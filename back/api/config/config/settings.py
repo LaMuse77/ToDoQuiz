@@ -25,14 +25,15 @@ SECRET_KEY = 'django-insecure-8&4i^!s(xmlws8nr#h6wodua4!sj!%o%fee@4s%d0w$$c(s-8f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-CORS_ALLOW_ALL_ORIGINS = True  # en développement uniquement !
 
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:5500",  # ton frontend local
+    #"http://127.0.0.1:5500",  # Front-end (Live Server)
+    "http://localhost:8000",  # Backend (Django)
+    "http://127.0.0.1:8000", # Ensure both localhost and 127.0.0.1
 ]
-
+CORS_ALLOW_ALL_ORIGINS = False  # Explicitly disable to avoid conflicts
 
 
 
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'scrapper',
     'rest_framework',
     'corsheaders',
+    #csp',
     'rest_framework.authtoken',
 
 ]
@@ -79,10 +81,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR.parent.parent.parent / "front" ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -147,7 +150,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR.parent.parent.parent / "front",  # Path to frontend directory
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

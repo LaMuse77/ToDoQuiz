@@ -29,21 +29,27 @@
     const token = localStorage.getItem("token");
 
     async function loadCategories() {
-      const res = await fetch(`${baseUrl}/api/quizzes/categories/`, {
-        headers: { 'Authorization': `Token ${token}` }
-      });
-      if (!res.ok) {
-        document.getElementById('errorMessage').textContent = 'Erreur lors du chargement des catégories.';
-        return;
-      }
-      const categories = await res.json();
-      const select = document.getElementById('categorie');
-      categories.forEach(cat => {
-        const opt = document.createElement('option');
-        opt.value = cat.id;
-        opt.textContent = cat.nom;
-        select.appendChild(opt);
-      });
+        const token = localStorage.getItem("token");
+        const headers = {};
+        if (token) {
+            headers['Authorization'] = `Token ${token}`;
+        }
+
+        const res = await fetch(`${baseUrl}/api/quizzes/categories/`, {
+            headers: headers
+        });
+        if (!res.ok) {
+            document.getElementById('errorMessage').textContent = 'Erreur lors du chargement des catégories: ' + res.statusText;
+            return;
+        }
+        const categories = await res.json();
+        const select = document.getElementById('categorie');
+        categories.forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat.id;
+            opt.textContent = cat.nom;
+            select.appendChild(opt);
+        });
     }
 
     function addQuestion() {
