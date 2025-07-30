@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Quiz App</title>
+  <title>Landing Quiz App</title>
   <style>
     body {
       background-color: #71c071;
@@ -40,32 +40,10 @@
   </header>
 
   <main>
-    <section>
-      <button onclick="showLogin()">Begin</button>
 
-      <!-- LOGIN FORM -->
-      <div id="loginForm" class="form-box">
-        <h4>Connexion</h4>
-        <input type="text" id="loginUsername" placeholder="Nom d'utilisateur">
-        <input type="password" id="loginPassword" placeholder="Mot de passe">
-        <button onclick="login()">Se connecter</button>
-        <p><a href="#" onclick="toggleToRegister()">Pas encore de compte ? S’inscrire</a></p>
-      </div>
+      <h1>Bienvenue sur Quiz App</h1>
+    <button onclick="location.href='pages/login.html'">Begin</button>
 
-      <!-- REGISTER FORM -->
-      <div id="registerForm" class="form-box">
-        <h4>Créer un compte</h4>
-        <input type="text" id="regUsername" placeholder="Nom d'utilisateur">
-        <input type="email" id="regEmail" placeholder="Email">
-        <input type="password" id="regPassword" placeholder="Mot de passe">
-        <select id="regRole">
-          <option value="participant">Participant</option>
-          <option value="organisateur">Organisateur</option>
-        </select>
-        <button onclick="register()">S’inscrire</button>
-        <p><a href="#" onclick="toggleToLogin()">Déjà un compte ? Se connecter</a></p>
-      </div>
-    </section>
   </main>
 
   <script>
@@ -87,59 +65,6 @@
     }
 
 
-    async function login() {
-        const username = document.getElementById('loginUsername').value;
-        const password = document.getElementById('loginPassword').value;
-
-        const res = await fetch(`${baseUrl}/api/accounts/login/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-            alert('Connecté !');
-            if (data.token) {
-                localStorage.setItem('authToken', data.token);
-              }
-
-            if (data.role === 'participant') {
-            window.location.href = "pages/chooseCategorie.html";  // Crée ce fichier si pas encore
-            } else if (data.role === 'organisateur') {
-            window.location.href = "pages/dashboard.html";  // Crée ce fichier si pas encore
-            } else {
-            alert("Rôle inconnu.");
-            }
-
-        } else {
-            alert('Erreur : ' + (data.error || JSON.stringify(data)));
-        }
-    }
-
-
-    async function register() {
-      const username = document.getElementById('regUsername').value;
-      const email = document.getElementById('regEmail').value;
-      const password = document.getElementById('regPassword').value;
-      const role = document.getElementById('regRole').value;
-
-      const res = await fetch(`${baseUrl}/api/accounts/register/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password, role })
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        alert('Inscription réussie ! Token : ' + data.token);
-        toggleToLogin(); // on retourne au login
-      } else {
-        alert('Erreur : ' + JSON.stringify(data));
-      }
-    }
   </script>
 </body>
 </html>

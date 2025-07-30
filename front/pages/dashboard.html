@@ -1,8 +1,10 @@
+<!-- front/pages/createQuiz.html -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <title>Créer un Quiz</title>
+  <link rel="icon" href="/static/assets/favicon.ico">
   <style>
     body { font-family: sans-serif; padding: 20px; background-color: #f0f0f0; }
     .question-block { background: white; padding: 10px; margin-bottom: 20px; border-radius: 10px; }
@@ -16,40 +18,56 @@
   <input type="text" id="titre" placeholder="Titre du quiz">
   <textarea id="description" placeholder="Description du quiz"></textarea>
   <label>Choisir la catégorie</label>
-  <select id="categorie">
-    
-  </select>
+  <select id="categorie"></select>
   <div id="questions-container"></div>
   <button onclick="addQuestion()">+ Ajouter une Question</button>
   <button onclick="submitQuiz()">📤 Envoyer le Quiz</button>
   <div id="errorMessage" class="error"></div>
-
   <script>
     const baseUrl = "http://localhost:8000";
     const token = localStorage.getItem("token");
 
-    async function loadCategories() {
-        const token = localStorage.getItem("token");
-        const headers = {};
-        if (token) {
-            headers['Authorization'] = `Token ${token}`;
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
         }
+      }
+      return cookieValue;
+    }
 
+    if (!token) {
+      document.getElementById('errorMessage').textContent = 'Vous devez être connecté.';
+      setTimeout(() => { window.location.href = '/pages/login.html'; }, 2000);
+    }
+
+    async function loadCategories() {
+      try {
         const res = await fetch(`${baseUrl}/api/quizzes/categories/`, {
-            headers: headers
+          headers: token ? { 'Authorization': `Token ${token}` } : {}
         });
         if (!res.ok) {
-            document.getElementById('errorMessage').textContent = 'Erreur lors du chargement des catégories: ' + res.statusText;
-            return;
+          throw new Error(`Erreur HTTP ${res.status}: ${await res.text()}`);
         }
         const categories = await res.json();
         const select = document.getElementById('categorie');
+        select.innerHTML = ''; // Clear existing options
         categories.forEach(cat => {
-            const opt = document.createElement('option');
-            opt.value = cat.id;
-            opt.textContent = cat.nom;
-            select.appendChild(opt);
+          const opt = document.createElement('option');
+          opt.value = cat.id;
+          opt.textContent = cat.nom;
+          select.appendChild(opt);
         });
+      } catch (error) {
+        console.error('Erreur:', error);
+        document.getElementById('errorMessage').textContent = 'Erreur lors du chargement des catégories: ' + error.message;
+      }
     }
 
     function addQuestion() {
@@ -87,6 +105,7 @@
     async function submitQuiz() {
       if (!token) {
         document.getElementById('errorMessage').textContent = 'Vous devez être connecté.';
+        setTimeout(() => { window.location.href = '/pages/login.html'; }, 2000);
         return;
       }
 
@@ -108,27 +127,39 @@
       const blocks = document.querySelectorAll(".question-block");
 
       for (let i = 0; i < blocks.length; i++) {
-        const block = blocks[i];
-        const texte = block.querySelector('[name="questionTexte"]').value;
-        const type = block.querySelector('[name="questionType"]').value;
+          const block = blocks[i];
+          const texte = block.querySelector('[name="questionTexte"]').value;
+          const type = block.querySelector('[name="questionType"]').value;
 
-        if (!texte || !type) {
-          document.getElementById('errorMessage').textContent = 'Chaque question doit avoir un texte et un type.';
-          return;
-        }
-
-        const choices = [];
-        const choicesDivs = block.querySelectorAll(".choices");
-        for (let j = 0; j < choicesDivs.length; j++) {
-          const choiceTexte = choicesDivs[j].querySelector('[name="choiceTexte"]').value;
-          const choiceImage = choicesDivs[j].querySelector('[name="choiceImage"]').files[0];
-          if (choiceTexte || choiceImage) {
-            choices.push({ texte: choiceTexte, image: choiceImage });
-          }
-        }
-
-        questionsData.push({ texte, type, choices });
+          if (!texte || !type) {
+            document.getElementById('errorMessage').textContent = 'Chaque question doit avoir un texte et un type.';
+            return;
       }
+
+      const choices = [];
+      const choicesDivs = block.querySelectorAll(".choices"); // <- fix ici
+      for (let j = 0; j < choicesDivs.length; j++) {
+        const choiceTexte = choicesDivs[j].querySelector('[name="choiceTexte"]').value;
+        const choiceImage = choicesDivs[j].querySelector('[name="choiceImage"]').files[0];
+        if (choiceTexte || choiceImage) {
+          choices.push({ texte: choiceTexte, image: choiceImage });
+        }
+      }
+
+  if (choices.length === 0) {
+    document.getElementById('errorMessage').textContent = 'Chaque question doit avoir au moins un choix.';
+    return;
+  }
+
+  formData.append(`questions[${i}][texte]`, texte);
+  formData.append(`questions[${i}][type]`, type);
+
+  choices.forEach((choice, j) => {
+    if (choice.texte) formData.append(`questions[${i}][choices][${j}][texte]`, choice.texte);
+    if (choice.image) formData.append(`questions[${i}][choices][${j}][image]`, choice.image);
+  });
+}
+
 
       for (let i = 0; i < questionsData.length; i++) {
         formData.append(`questions[${i}][texte]`, questionsData[i].texte);
@@ -139,21 +170,29 @@
         });
       }
 
-      const res = await fetch(`${baseUrl}/api/quizzes/`, {
-        method: "POST",
-        headers: {
-          'Authorization': `Token ${token}`
-        },
-        body: formData
-      });
+      try {
+        console.log('FormData:', [...formData.entries()]); // Debug FormData
+        console.log('Request method: POST'); // Debug method
+        const res = await fetch(`${baseUrl}/api/quizzes/quizzes/`, {
+          method: "POST",
+          headers: {
+            'Authorization': `Token ${token}`,
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: formData
+        });
 
-      const result = await res.json();
-      if (res.ok) {
-        document.getElementById('errorMessage').textContent = 'Quiz créé avec succès !';
-        console.log(result);
-      } else {
-        document.getElementById('errorMessage').textContent = 'Erreur : ' + JSON.stringify(result);
-        console.error(result);
+        const result = await res.json();
+        console.log('Server response:', result); // Debug server response
+        if (res.ok) {
+          document.getElementById('errorMessage').textContent = 'Quiz créé avec succès !';
+        } else {
+          document.getElementById('errorMessage').textContent = 'Erreur : ' + JSON.stringify(result);
+          console.error('Error details:', result);
+        }
+      } catch (error) {
+        document.getElementById('errorMessage').textContent = 'Erreur réseau : ' + error.message;
+        console.error('Network error:', error);
       }
     }
 
