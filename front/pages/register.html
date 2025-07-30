@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Page to register </title>
+</head>
+<body>
+
+  
+  <h2>Créer un compte</h2>
+  <input type="text" id="regUsername" placeholder="Nom d'utilisateur">
+  <input type="email" id="regEmail" placeholder="Email">
+  <input type="password" id="regPassword" placeholder="Mot de passe">
+  <select id="regRole">
+    <option value="participant">Participant</option>
+    <option value="organisateur">Organisateur</option>
+  </select>
+  <button onclick="register()">S’inscrire</button>
+  <p><a href="login.html">Déjà un compte ? Se connecter</a></p>
+
+  <script src="../js/app.js"></script>
+
+</body>
+</html>
