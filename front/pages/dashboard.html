@@ -102,99 +102,72 @@
       btn.parentElement.appendChild(div);
     }
 
+
     async function submitQuiz() {
-      if (!token) {
-        document.getElementById('errorMessage').textContent = 'Vous devez être connecté.';
-        setTimeout(() => { window.location.href = '/pages/login.html'; }, 2000);
-        return;
-      }
+  const titre = document.getElementById("titre").value;
+  const description = document.getElementById("description").value;
+  const categorie = document.getElementById("categorie").value;
 
-      const formData = new FormData();
-      const titre = document.getElementById("titre").value;
-      const description = document.getElementById("description").value;
-      const categorie = document.getElementById("categorie").value;
-
-      if (!titre || !description || !categorie) {
-        document.getElementById('errorMessage').textContent = 'Tous les champs sont requis.';
-        return;
-      }
-
-      formData.append("titre", titre);
-      formData.append("description", description);
-      formData.append("categorie", categorie);
-
-      const questionsData = [];
-      const blocks = document.querySelectorAll(".question-block");
-
-      for (let i = 0; i < blocks.length; i++) {
-          const block = blocks[i];
-          const texte = block.querySelector('[name="questionTexte"]').value;
-          const type = block.querySelector('[name="questionType"]').value;
-
-          if (!texte || !type) {
-            document.getElementById('errorMessage').textContent = 'Chaque question doit avoir un texte et un type.';
-            return;
-      }
-
-      const choices = [];
-      const choicesDivs = block.querySelectorAll(".choices"); // <- fix ici
-      for (let j = 0; j < choicesDivs.length; j++) {
-        const choiceTexte = choicesDivs[j].querySelector('[name="choiceTexte"]').value;
-        const choiceImage = choicesDivs[j].querySelector('[name="choiceImage"]').files[0];
-        if (choiceTexte || choiceImage) {
-          choices.push({ texte: choiceTexte, image: choiceImage });
-        }
-      }
-
-  if (choices.length === 0) {
-    document.getElementById('errorMessage').textContent = 'Chaque question doit avoir au moins un choix.';
-    return;
-  }
-
-  formData.append(`questions[${i}][texte]`, texte);
-  formData.append(`questions[${i}][type]`, type);
-
-  choices.forEach((choice, j) => {
-    if (choice.texte) formData.append(`questions[${i}][choices][${j}][texte]`, choice.texte);
-    if (choice.image) formData.append(`questions[${i}][choices][${j}][image]`, choice.image);
+  const questions = [];
+  const blocks = document.querySelectorAll(".question-block");
+  blocks.forEach(block => {
+    const texte = block.querySelector('[name="questionTexte"]').value;
+    const type = block.querySelector('[name="questionType"]').value;
+    const choices = [];
+    block.querySelectorAll(".choices").forEach(choiceDiv => {
+      const choiceTexte = choiceDiv.querySelector('[name="choiceTexte"]').value;
+      if (choiceTexte) choices.push({ texte: choiceTexte });
+    });
+    questions.push({ texte, type, choices });
   });
+
+  const quizData = { titre, description, categorie, questions };
+
+  const res = await fetch(`${baseUrl}/api/quizzes/`, {
+    method: "POST",
+    headers: {
+      'Authorization': `Token ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(quizData)
+  });
+
+  const result = await res.json();
+  console.log(result);
+}
+async function submitQuiz() {
+  const titre = document.getElementById("titre").value;
+  const description = document.getElementById("description").value;
+  const categorie = document.getElementById("categorie").value;
+
+  const questions = [];
+  const blocks = document.querySelectorAll(".question-block");
+  blocks.forEach(block => {
+    const texte = block.querySelector('[name="questionTexte"]').value;
+    const type = block.querySelector('[name="questionType"]').value;
+    const choices = [];
+    block.querySelectorAll(".choices").forEach(choiceDiv => {
+      const choiceTexte = choiceDiv.querySelector('[name="choiceTexte"]').value;
+      if (choiceTexte) choices.push({ texte: choiceTexte });
+    });
+    questions.push({ texte, type, choices });
+  });
+
+  const quizData = { titre, description, categorie, questions };
+
+  const res = await fetch(`${baseUrl}/api/quizzes/`, {
+    method: "POST",
+    headers: {
+      'Authorization': `Token ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(quizData)
+  });
+
+  const result = await res.json();
+  console.log(result);
 }
 
-
-      for (let i = 0; i < questionsData.length; i++) {
-        formData.append(`questions[${i}][texte]`, questionsData[i].texte);
-        formData.append(`questions[${i}][type]`, questionsData[i].type);
-        questionsData[i].choices.forEach((choice, j) => {
-          if (choice.texte) formData.append(`questions[${i}][choices][${j}][texte]`, choice.texte);
-          if (choice.image) formData.append(`questions[${i}][choices][${j}][image]`, choice.image);
-        });
-      }
-
-      try {
-        console.log('FormData:', [...formData.entries()]); // Debug FormData
-        console.log('Request method: POST'); // Debug method
-        const res = await fetch(`${baseUrl}/api/quizzes/quizzes/`, {
-          method: "POST",
-          headers: {
-            'Authorization': `Token ${token}`,
-            'X-CSRFToken': getCookie('csrftoken')
-          },
-          body: formData
-        });
-
-        const result = await res.json();
-        console.log('Server response:', result); // Debug server response
-        if (res.ok) {
-          document.getElementById('errorMessage').textContent = 'Quiz créé avec succès !';
-        } else {
-          document.getElementById('errorMessage').textContent = 'Erreur : ' + JSON.stringify(result);
-          console.error('Error details:', result);
-        }
-      } catch (error) {
-        document.getElementById('errorMessage').textContent = 'Erreur réseau : ' + error.message;
-        console.error('Network error:', error);
-      }
-    }
 
     window.onload = loadCategories;
   </script>
