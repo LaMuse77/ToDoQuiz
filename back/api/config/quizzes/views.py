@@ -11,6 +11,19 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly , AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
 
 
+from django.shortcuts import render
+
+# Create your views here.
+
+
+# quizzes/views.py
+from rest_framework import viewsets , mixins
+from .models import Question, Quiz , Categorie
+from .serializers import * 
+from rest_framework.permissions import IsAuthenticatedOrReadOnly , AllowAny
+from rest_framework.parsers import MultiPartParser, FormParser
+
+
 # back/api/config/quizzes/views.py
 from rest_framework import viewsets, mixins
 from .models import Question, Quiz, Categorie

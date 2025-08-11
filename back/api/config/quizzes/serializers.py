@@ -1,6 +1,19 @@
 # quiz/serializers.py
 from rest_framework import serializers
 from .models import Quiz, Question, Choice
+from rest_framework.response import Response
+from rest_framework import status
+import json
+
+
+# back/api/config/quizzes/serializers.py
+from rest_framework import serializers
+from .models import Quiz, Question, Choice, Categorie
+
+
+# quiz/serializers.py
+from rest_framework import serializers
+from .models import Quiz, Question, Choice
 
 
 
