@@ -10,6 +10,6 @@ router.register(r'questions', QuestionCreateViewSet, basename='question')
 router.register(r'categories', CategorieViewSet, basename='categorie')
 
 urlpatterns = [
-    path('', include(router.urls)),
-]
+    path('api/', include(router.urls)),
+]   
     

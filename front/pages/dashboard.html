@@ -49,7 +49,7 @@
 
     async function loadCategories() {
       try {
-        const res = await fetch(`${baseUrl}/api/quizzes/categories/`, {
+        const res = await fetch(`${baseUrl}/api/quizzes/api/categories/`, {
           headers: token ? { 'Authorization': `Token ${token}` } : {}
         });
         if (!res.ok) {
